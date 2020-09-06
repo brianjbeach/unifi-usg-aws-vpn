@@ -1,0 +1,188 @@
+{
+        "interfaces": {
+                "vti": {
+                        "vti0": {
+                                "address": [
+                                        "{{Tunnel1InsideIPAddressCustomerGateway}}"
+                                ],
+                                "firewall": {
+                                        "in": {
+                                                "ipv6-name": "LANv6_IN",
+                                                "name": "LAN_IN"
+                                        },
+                                        "local": {
+                                                "ipv6-name": "LANv6_LOCAL",
+                                                "name": "LAN_LOCAL"
+                                        },
+                                        "out": {
+                                                "ipv6-name": "LANv6_OUT",
+                                                "name": "LAN_OUT"
+                                        }
+                                },
+                                "mtu": "1436"
+                        },
+                        "vti1": {
+                                "address": [
+                                        "{{Tunnel2InsideIPAddressCustomerGateway}}"
+                                ],
+                                "firewall": {
+                                        "in": {
+                                                "ipv6-name": "LANv6_IN",
+                                                "name": "LAN_IN"
+                                        },
+                                        "local": {
+                                                "ipv6-name": "LANv6_LOCAL",
+                                                "name": "LAN_LOCAL"
+                                        },
+                                        "out": {
+                                                "ipv6-name": "LANv6_OUT",
+                                                "name": "LAN_OUT"
+                                        }
+                                },
+                                "mtu": "1436"
+                        }
+                }
+        },
+        "protocols": {
+                "bgp": {
+                        "{{Tunnel1BGPConfigurationOptionsCustomerGatewayASN}}": {
+                                "neighbor": {
+                                        "{{Tunnel1BGPConfigurationOptionsNeighborIPAddress}}": {
+                                                "remote-as": "{{Tunnel1BGPConfigurationOptionsVirtualPrivateGatewayASN}}",
+                                                "soft-reconfiguration": {
+                                                        "inbound": "''"
+                                                },
+                                                "timers": {
+                                                        "holdtime": "30",
+                                                        "keepalive": "10"
+                                                }
+                                        },
+                                        "{{Tunnel2BGPConfigurationOptionsNeighborIPAddress}}": {
+                                                "remote-as": "{{Tunnel2BGPConfigurationOptionsVirtualPrivateGatewayASN}}",
+                                                "soft-reconfiguration": {
+                                                        "inbound": "''"
+                                                },
+                                                "timers": {
+                                                        "holdtime": "30",
+                                                        "keepalive": "10"
+                                                }
+                                        }
+                                },
+                                "parameters": {
+                                        "router-id": "{{Tunnel1OutsideIPAddressesCustomerGateway}}"
+                                },
+                                "redistribute": {
+                                        "connected": "''"
+                                }
+                        }
+                }
+        },
+        "vpn": {
+                "ipsec": {
+                        "auto-firewall-nat-exclude": "enable",
+                        "nat-traversal": "enable",
+                        "ipsec-interfaces": {
+                                "interface": [
+                                        "eth0"
+                                ]
+                        },
+                        "nat-networks": {
+                                "allowed-network": {
+                                        "0.0.0.0/0": "''"
+                                }
+                        },
+                        "esp-group": {
+                                "ESP_{{Tunnel1OutsideIPAddressesVirtualPrivateGateway}}": {
+                                        "compression": "disable",
+                                        "lifetime": "3600",
+                                        "mode": "tunnel",
+                                        "pfs": "enable",
+                                        "proposal": {
+                                                "1": {
+                                                        "encryption": "aes128",
+                                                        "hash": "sha1"
+                                                }
+                                        }
+                                },
+                                "ESP_{{Tunnel2OutsideIPAddressesVirtualPrivateGateway}}": {
+                                        "compression": "disable",
+                                        "lifetime": "3600",
+                                        "mode": "tunnel",
+                                        "pfs": "enable",
+                                        "proposal": {
+                                                "1": {
+                                                        "encryption": "aes128",
+                                                        "hash": "sha1"
+                                                }
+                                        }
+                                }
+                        },
+                        "ike-group": {
+                                "IKE_{{Tunnel1OutsideIPAddressesVirtualPrivateGateway}}": {
+                                        "key-exchange": "ikev1",
+                                        "lifetime": "28800",
+                                        "mode": "main",
+                                        "proposal": {
+                                                "1": {
+                                                        "dh-group": 2,
+                                                        "encryption": "aes128",
+                                                        "hash": "sha1"
+                                                }
+                                        },
+                                        "dead-peer-detection": {
+                                                 "action": "restart",
+                                                 "interval": "15",
+                                                 "timeout": "30"
+                                        }
+                                },
+                                "IKE_{{Tunnel2OutsideIPAddressesVirtualPrivateGateway}}": {
+                                        "key-exchange": "ikev1",
+                                        "lifetime": "28800",
+                                        "mode": "main",
+                                        "proposal": {
+                                                "1": {
+                                                        "dh-group": 2,
+                                                        "encryption": "aes128",
+                                                        "hash": "sha1"
+                                                }
+                                        },
+                                        "dead-peer-detection": {
+                                                 "action": "restart",
+                                                 "interval": "15",
+                                                 "timeout": "30"
+                                        }
+                                }
+                        },
+                        "site-to-site": {
+                                "peer": {
+                                        "{{Tunnel1OutsideIPAddressesVirtualPrivateGateway}}": {
+                                                "authentication": {
+                                                        "mode": "pre-shared-secret",
+                                                        "pre-shared-secret": "{{Tunnel1Pre-SharedKey}}"
+                                                },
+                                                "connection-type": "initiate",
+                                                "ike-group": "IKE_{{Tunnel1OutsideIPAddressesVirtualPrivateGateway}}",
+                                                "local-address": "{{Tunnel1OutsideIPAddressesCustomerGateway}}",
+                                                "vti": {
+                                                        "bind": "vti0",
+                                                        "esp-group": "ESP_{{Tunnel1OutsideIPAddressesVirtualPrivateGateway}}"
+                                                }
+                                        },
+                                        "{{Tunnel2OutsideIPAddressesVirtualPrivateGateway}}": {
+                                                "authentication": {
+                                                        "mode": "pre-shared-secret",
+                                                        "pre-shared-secret": "{{Tunnel2Pre-SharedKey}}"
+                                                },
+                                                "connection-type": "initiate",
+                                                "ike-group": "IKE_{{Tunnel2OutsideIPAddressesVirtualPrivateGateway}}",
+                                                "local-address": "{{Tunnel1OutsideIPAddressesCustomerGateway}}",
+                                                "vti": {
+                                                        "bind": "vti1",
+                                                        "esp-group": "ESP_{{Tunnel2OutsideIPAddressesVirtualPrivateGateway}}"
+                                                }
+                                        }
+                                }
+                        }
+                }
+        }
+}
